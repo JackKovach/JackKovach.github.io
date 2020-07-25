@@ -3,52 +3,67 @@
 <style> 
 circle {fill: lightblue; stroke: black;} 
 rect {fill: lightblue; stroke: black;}
-.button {
-  border: none;
-  color: white;
-  padding: 15px 32px;
-  text-align: center;
-  text-decoration: none;
-  display: inline-block;
-  font-size: 16px;
-  margin: 4px 2px;
-  cursor: pointer;
+
+.btn-group button {
+  background-color: #4CAF50; /* Green background */
+  border: 1px solid green; /* Green border */
+  color: white; /* White text */
+  padding: 10px 50px; /* Some padding */
+  cursor: pointer; /* Pointer/hand icon */
+  float: left; /* Float the buttons side by side */
 }
-.button3 {background-color: rgb(194, 23, 23);} /* Green */
-.button2 {background-color: rgb(23, 194, 29);} /* Green */
-.button1 {background-color: rgb(10, 80, 209);} /* Green */
+
+/* Clear floats (clearfix hack) */
+.btn-group:after {
+  content: "";
+  clear: both;
+  display: table;
+}
+
+.btn-group button:not(:last-child) {
+  border-right: none; /* Prevent double borders */
+}
+
+/* Add a background color on hover */
+.btn-group button:hover {
+  background-color: #3e8e41;
+}
+
+p.a {
+  font: 48px Arial, sans-serif;
+  padding: 0px 0px 0px 0px;
+  margin: 10px;
+
+}
 
 </style>
 
-<!-- Clickable button -->
-<!-- <button class="button button1" onclick="changeColor('blue')">Chart1</button>
-<button class="button button2" onclick="changeColor('red')">Chart2</button> -->
-
-<button class="button button1" onclick="changeScene()">Chart1</button>
-<button class="button button2" onclick="bringBack()">Chart2</button>
-<button class="button button3" onclick="chart1()">Chart3</button>
-
-<!-- Create a div where the circle will take place -->
-<div id="dataviz_buttonTriger"></div>
-
+<p class="a">Chart Title</p>
 
 <body onload='chart1()'>
-<svg width=1000 height=300>
+<!-- <div class="btn-group">
+    <button>Apple</button>
+    <button>Samsung</button>
+    <button>Sony</button>
+  <!-- <button class="button button1" onclick="changeScene()">Chart1</button>
+  <button class="button button2" onclick="bringBack()">Chart2</button>
+  <button class="button button3" onclick="chart1()">Chart3</button> -->
+<!-- </div> --> 
+
+<svg width=300 height=250>
   <!-- <rect width ="300" height="100" fill="purple" /> -->
 </svg>
-<script>
 
-// Initialize a circle
-// var myCircle = d3.select("#dataviz_buttonTriger")
-//   .append("circle")
-//     .attr("cx", 50)
-//     .attr("cy", 50)
-//     .attr("r", 25)
-    // .attr("width", 50)
-    // .attr("height", 100)
-    // .attr("x", 100)
-    // .attr("y", 100)
-    // .attr("fill", "white")
+<div class="btn-group">
+    <button class="button1" onclick="changeScene()"; background-color: rgb(23, 194, 29)>Chart1</button>
+    <button class="button2" onclick="bringBack()">Chart2</button>
+    <button class="button button3" onclick="chart1()">Chart3</button>
+  <!-- <button class="button button1" onclick="changeScene()">Chart1</button>
+  <button class="button button2" onclick="bringBack()">Chart2</button>
+  <button class="button button3" onclick="chart1()">Chart3</button> -->
+</div>
+<!-- <button class="button button1" onclick="changeScene()">Chart1</button> -->
+<script>
 
 var changeColor = function(color, y){
   y.style("fill", color)
@@ -66,6 +81,7 @@ var changeScene = function(){
 }
 
 var bringBack = function(){
+  d3.select("svg").selectAll("*").remove()
   d3.select("svg")
     .append("rect")
     .attr("width", 20)
@@ -76,6 +92,7 @@ var bringBack = function(){
 }
 
 async function chart1() {
+  d3.select("svg").selectAll("*").remove()//.html = ""
   var x = d3.scaleLog().domain([10,150]).range([0,200]);
   var y = d3.scaleLog().domain([10,150]).range([200,0]);
 
@@ -86,7 +103,7 @@ async function chart1() {
 
   d3.select("svg")
     .append("g")
-    .attr("transform","translate(" + 50 + "," + 50 + ")")
+    .attr("transform","translate(" + 50 + "," + 0 + ")")
     .selectAll('circle')
     .data(data)
     .enter()
@@ -94,10 +111,13 @@ async function chart1() {
       .attr("cx", function(d,i){return x(d.AverageCityMPG)})
       .attr("cy", function(d,i){return y(d.AverageHighwayMPG)})
       .attr("r", function(d,i){return (2 + parseInt(d.EngineCylinders))})
+    // .selectAll('button')
+    // .append("button")
+    //   .attr("background-color", "red")
     ;
 
   d3.select("svg").append("g")
-      .attr("transform","translate(" + 50+ "," + 50 + ")")
+      .attr("transform","translate(" + 50+ "," + 0 + ")")
       .attr("fill","none")
       .call(d3.axisLeft(y)
          .tickValues([10,20,50,100])
@@ -105,22 +125,12 @@ async function chart1() {
          );
 
   d3.select("svg").append("g")
-      .attr("transform","translate(" + 50 + "," + 250 + ")")
+      .attr("transform","translate(" + 50 + "," + 200 + ")")
       .attr("fill","none")
       .call(d3.axisBottom(x)
            .tickValues([10,20,50,100])
            .tickFormat(d3.format("~s"))
            );
-
-  // d3.select("svg").append("g")
-  //   .append("rect")
-  //     .attr("width", 50)
-  //     .attr("height", 100)
-  //     .attr("x", 100)
-  //     .attr("y", 100)
-  //     .on("click", function() {
-  //       d3.select(this).style("color", "red");
-      // });
 }
 
 function chart2() {
