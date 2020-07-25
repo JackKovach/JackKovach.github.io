@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<script src='https://d3js.org/d3.v5.min.js'></script>
+<style> circle {fill: lightblue; stroke: black;} 
+.button {
+  border: none;
+  color: white;
+  padding: 15px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  cursor: pointer;
+}
+.button2 {background-color: rgb(23, 194, 29);} /* Green */
+.button1 {background-color: rgb(10, 80, 209);} /* Green */
+
+</style>
+
+<!-- Clickable button -->
+<button class="button button1" onclick="changeColor('blue')">Next Slide</button>
+<button class="button button2" onclick="changeColor('red')">Previous Slide</button>
+
+<!-- Create a div where the circle will take place -->
+<div id="dataviz_buttonTriger"></div>
+
+
+<body onload='init()'>
+<svg width=300 height=300>
+</svg>
+<script>
+
+  
+// Initialize a circle
+var myCircle = d3.select("#dataviz_buttonTriger")
+  .append("svg")
+  .append("circle")
+    .attr("cx", 100)
+    .attr("cy", 70)
+    .attr("r", 50)
+    .attr("stroke", "black")
+
+// A function that update the color circle
+var changeColor = function(color){
+  myCircle
+    .style("fill", color)
+}
+
+async function init() {
+  var x = d3.scaleLog().domain([10,150]).range([0,200]);
+  var y = d3.scaleLog().domain([10,150]).range([200,0]);
+
+  const data = await d3.csv(
+    'https://flunky.github.io/cars2017.csv');
+  console.log(data)
+
+  d3.select("svg")
+    .append("g")
+    .attr("transform","translate(" + 50 + "," + 50 + ")")
+    .selectAll('circle')
+    .data(data)
+    .enter()
+    .append('circle')
+      .attr("cx", function(d,i){return x(d.AverageCityMPG)})
+      .attr("cy", function(d,i){return y(d.AverageHighwayMPG)})
+      .attr("r", function(d,i){return (2 + parseInt(d.EngineCylinders))});
+
+
+  d3.select("svg").append("g")
+      .attr("transform","translate(" + 50+ "," + 50 + ")")
+      .attr("fill","none")
+      .call(d3.axisLeft(y)
+         .tickValues([10,20,50,100])
+         .tickFormat(d3.format("~s"))
+         );
+
+  d3.select("svg").append("g")
+      .attr("transform","translate(" + 50 + "," + 250 + ")")
+      .attr("fill","none")
+      .call(d3.axisBottom(x)
+           .tickValues([10,20,50,100])
+           .tickFormat(d3.format("~s"))
+           );
+         }
+</script>
+</body>
+</html>
