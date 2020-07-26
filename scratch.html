@@ -1,87 +1,51 @@
 <!DOCTYPE html>
-<script src='https://d3js.org/d3.v5.min.js'></script>
-<style> circle {fill: lightblue; stroke: black;} 
-.button {
-  border: none;
-  color: white;
-  padding: 15px 32px;
-  text-align: center;
-  text-decoration: none;
-  display: inline-block;
-  font-size: 16px;
-  margin: 4px 2px;
-  cursor: pointer;
-}
-.button2 {background-color: rgb(23, 194, 29);} /* Green */
-.button1 {background-color: rgb(10, 80, 209);} /* Green */
+<script src="https://d3js.org/d3.v4.min.js"></script>
 
-</style>
+<style> .chart rect { fill: steelblue } </style>
 
-<!-- Clickable button -->
-<button class="button button1" onclick="changeColor('blue')">Next Slide</button>
-<button class="button button2" onclick="changeColor('red')">Previous Slide</button>
+<html><body>
+<p>Here are the magic numbers from Lost: <span id="data"></span></p>
 
-<!-- Create a div where the circle will take place -->
-<div id="dataviz_buttonTriger"></div>
+<svg class="chart"></svg>
 
-
-<body onload='init()'>
-<svg width=300 height=300>
-</svg>
 <script>
+var margin = 30;
+var width = 120;
+var height = 300;
 
-  
-// Initialize a circle
-var myCircle = d3.select("#dataviz_buttonTriger")
-  .append("svg")
-  .append("circle")
-    .attr("cx", 100)
-    .attr("cy", 70)
-    .attr("r", 50)
-    .attr("stroke", "black")
+var data = [4,8,15,16,23,42];
+document.getElementById("data").innerHTML = data;
 
-// A function that update the color circle
-var changeColor = function(color){
-  myCircle
-    .style("fill", color)
-}
+var x = d3.scaleBand()
+	.domain([0,1,2,3,4,5])
+    .range([0,width]);
+    
+var y = d3.scaleLinear()
+	.domain([0,42])
+    .range([height,0]);
 
-async function init() {
-  var x = d3.scaleLog().domain([10,150]).range([0,200]);
-  var y = d3.scaleLog().domain([10,150]).range([200,0]);
+var chart = d3.select(".chart");
 
-  const data = await d3.csv(
-    'https://flunky.github.io/cars2017.csv');
-  console.log(data)
-
-  d3.select("svg")
+chart.attr("width",width + 2*margin)
+    .attr("height",height + 2*margin)
     .append("g")
-    .attr("transform","translate(" + 50 + "," + 50 + ")")
-    .selectAll('circle')
-    .data(data)
-    .enter()
-    .append('circle')
-      .attr("cx", function(d,i){return x(d.AverageCityMPG)})
-      .attr("cy", function(d,i){return y(d.AverageHighwayMPG)})
-      .attr("r", function(d,i){return (2 + parseInt(d.EngineCylinders))});
+        .attr("transform","translate(" + margin + "," + margin + ")")
+    .selectAll("rect")
+	.data(data)
+    .enter().append("rect")
+    .attr("width",19)
+    .attr("height",function(d) { return height - y(d); })
+    .attr("x",function(d,i) { return x(i); })
+    .attr("y",function(d) { return y(d); });
 
+chart.append("g")
+    .attr("transform", "translate(" + margin + "," + margin + ")")
+    .call(d3.axisLeft(y));
 
-  d3.select("svg").append("g")
-      .attr("transform","translate(" + 50+ "," + 50 + ")")
-      .attr("fill","none")
-      .call(d3.axisLeft(y)
-         .tickValues([10,20,50,100])
-         .tickFormat(d3.format("~s"))
-         );
-
-  d3.select("svg").append("g")
-      .attr("transform","translate(" + 50 + "," + 250 + ")")
-      .attr("fill","none")
-      .call(d3.axisBottom(x)
-           .tickValues([10,20,50,100])
-           .tickFormat(d3.format("~s"))
-           );
-         }
+chart.append("g")
+    .attr("transform", "translate(" + margin + "," + (height+margin) + ")")
+    .call(d3.axisBottom(x));
+    
 </script>
-</body>
-</html>
+
+</body></html>

@@ -4,6 +4,8 @@
 circle {fill: lightblue; stroke: black;} 
 rect {fill: lightblue; stroke: black;}
 
+.chart rect { fill: steelblue }
+
 .btn-group button {
   background-color: #4CAF50; /* Green background */
   border: 1px solid green; /* Green border */
@@ -59,14 +61,15 @@ p.a {
 
 <div id="tooltip"></div>
 <p class="a">        Chart Title</p>
-
+<!-- <span id="data"></span> -->
 <body onload='chart1()'>
-<svg width=600 height=450></svg>
+<svg class="chart" width=600 height=450></svg>
+<!-- <svg class="chart"></svg> -->
 
 <div class="btn-group">
-    <button class="button1" onclick="changeScene()">Chart1</button>
+    <button class="button1" onclick="chart1()">Chart1</button>
     <button class="button2" onclick="bringBack()">Chart2</button>
-    <button class="button button3" onclick="chart1()">Chart3</button>
+    <button class="button button3" onclick="bar()">Chart3</button>
 </div>
 
 
@@ -102,8 +105,58 @@ var bringBack = function(){
   chart2()
 }
 
+////////////
+
+
+function bar(){
+
+d3.select("svg").selectAll("*").remove()//.html = ""
+
+var margin = 30;
+var width = 120;
+var height = 300;
+
+var data = [4,8,15,16,23,42,55];
+// document.getElementById("data").innerHTML = data;
+
+var x1 = d3.scaleBand()
+	.domain([0,1,2,3,4,5,6]) //neeeded to add here to get extra bar, make extra column in csv file
+    .range([0,width]);
+    
+var y1 = d3.scaleLinear()
+	.domain([0,42])
+    .range([height,0]);
+
+var chart = d3.select(".chart");
+
+chart.attr("width",width + 2*margin)
+    .attr("height",height + 2*margin)
+    .append("g")
+        .attr("transform","translate(" + margin + "," + margin + ")")
+    .selectAll("rect")
+	.data(data)
+    .enter().append("rect")
+    .attr("width",19)
+    .attr("height",function(d) { return height - y1(d); })
+    .attr("x",function(d,i) { return x1(i); })
+    .attr("y",function(d) { return y1(d); });
+
+chart.append("g")
+    .attr("transform", "translate(" + margin + "," + margin + ")")
+    .call(d3.axisLeft(y1));
+
+chart.append("g")
+    .attr("transform", "translate(" + margin + "," + (height+margin) + ")")
+    .call(d3.axisBottom(x1));
+}
+
+///////////////
+
+
+
 async function chart1() {
   d3.select("svg").selectAll("*").remove()//.html = ""
+  d3.select(".chart").selectAll("*").remove()//.html = ""
   var x = d3.scaleLog().domain([10,250]).range([0,400]);
   var y = d3.scaleLog().domain([10,250]).range([400,0]);
 
@@ -113,6 +166,8 @@ async function chart1() {
   console.log(data)
 
   d3.select("svg")
+    .attr("width", 600)
+    .attr("height",450)
     .append("g")
     .attr("transform","translate(" + 50 + "," + 0 + ")")
     .selectAll('circle')
@@ -129,9 +184,6 @@ async function chart1() {
                .html("Item #"+i+" is "+d);
       })
       .on("mouseout", function() { tooltip.style("opacity", 0) })
-    // .selectAll('button')
-    // .append("button")
-    //   .attr("background-color", "red")
     ;
 
   d3.select("svg").append("g")
