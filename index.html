@@ -108,7 +108,7 @@ var bringBack = function(){
 ////////////
 
 
-function bar(){
+async function bar(){
 
 d3.select("svg").selectAll("*").remove()//.html = ""
 
@@ -116,19 +116,49 @@ var margin = 30;
 var width = 540;
 var height = 390;
 
-var data = [4,8,15,16,23,42,55,22];
+// var data = [4,8,15,16,23,42,55,22];
 // document.getElementById("data").innerHTML = data;
+// var	parseDate = d3.time.format("%Y-%m").parse;
+var domain1 = []
+var cases1 = []
+var dates1 = []
+// var	parseDate = d3.time.format("%Y-%m").parse;
+// const data = await d3.csv('../us.csv').then(function(data){
+  // const data = await d3.csv('../us.csv', function(data){
+  const data = await d3.csv(
+  '../us.csv');
+  console.log(data)
+  console.log(data.length)
+  data.forEach(function(d,i) {
+    console.log(d.date)
+    dates1[i] = d.date
+    domain1[i] = d.domain
+    cases1[i] = d.cases
+  });
+//   const data = await d3.csv('../us.csv').then(function(data){
+    
+//   console.log(data.columns);
+//   console.log(data)
+//   console.log(data.length)
+//   console.log(data[0].date)
+//   data.forEach(function(d,i) {
+//     console.log(d.date)
+//     domain1[i] = d.domain
+//   });
+//   console.log(domain1)
+// });
 
 var x1 = d3.scaleBand()
-	.domain([0,1,2,3,4,5,6,7]) //neeeded to add here to get extra bar, make extra column in csv file
+  // .attr('domain', function(d) { return d.domain; })
+	.domain(dates1) //neeeded to add here to get extra bar, make extra column in csv file
     .range([0,width]);
     
 var y1 = d3.scaleLinear()
-	.domain([0,55])   //should scale to max of numbers
+	.domain([0,1])   //should scale to max of numbers
     .range([height,0]);
 
 var chart = d3.select(".chart");
-console.log(data.length)
+
 
 chart.attr("width",width + 2*margin)
     .attr("height",height + 2*margin)
@@ -166,8 +196,9 @@ async function chart1() {
 
 
   const data = await d3.csv(
-    'https://github.com/JackKovach/JackKovach.github.io/blob/master/us.csv');
+    '../us.csv');
   console.log(data)
+  console.log(function(d,i){return x(d.cases);})
 
   d3.select("svg")
     .attr("width", 600)
@@ -178,14 +209,14 @@ async function chart1() {
     .data(data)
     .enter()
     .append('circle')
-      .attr("cx", function(d,i){return x(d.AverageCityMPG)})
-      .attr("cy", function(d,i){return y(d.AverageHighwayMPG)})
-      .attr("r", function(d,i){return (2 + parseInt(d.EngineCylinders))})
+      .attr("cx", function(d,i){return x(d.cases)})
+      .attr("cy", function(d,i){return y(d.cases)})
+      .attr("r", function(d,i){return (2 + parseInt(1))})
       .on("mouseover", function(d,i) {
         tooltip.style("opacity", 1)
                .style("left",(d3.event.pageX)+"px")
                .style("top",(d3.event.pageY)+"px")
-               .html("Item #"+i+" is "+d.Make);
+               .html("Item #"+d.date+" is "+d.deaths);
       })
       .on("mouseout", function() { tooltip.style("opacity", 0) })
     ;
