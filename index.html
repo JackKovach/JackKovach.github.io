@@ -14,6 +14,7 @@ rect {fill: lightblue; stroke: black;}
   cursor: pointer; /* Pointer/hand icon */
   float: left; /* Float the buttons side by side */
   font: 24px Arial, sans-serif;
+  
 }
 
 /* Clear floats (clearfix hack) */
@@ -33,7 +34,7 @@ rect {fill: lightblue; stroke: black;}
 }
 
 .btn-group {
-  margin-left:25px;
+  margin-left:58px;
 }
 
 p.a {
@@ -74,7 +75,6 @@ p.a {
 
 
 <script>
-
 var tooltip = d3.select("#tooltip");
 
 var changeColor = function(color, y){
@@ -90,7 +90,6 @@ var changeScene = function(){
     .attr("x", 150)
     .attr("y", 150)
   tooltip.style("opacity", 0);
-  // d3.select("rect").html = ""
 }
 
 var bringBack = function(){
@@ -107,78 +106,78 @@ var bringBack = function(){
 
 ////////////
 
-
 async function bar(){
 
 d3.select("svg").selectAll("*").remove()//.html = ""
 
-var margin = 30;
+var margin = 60;
 var width = 540;
 var height = 390;
 
-// var data = [4,8,15,16,23,42,55,22];
-// document.getElementById("data").innerHTML = data;
-// var	parseDate = d3.time.format("%Y-%m").parse;
-var domain1 = []
 var cases1 = []
 var dates1 = []
-// var	parseDate = d3.time.format("%Y-%m").parse;
-// const data = await d3.csv('../us.csv').then(function(data){
-  // const data = await d3.csv('../us.csv', function(data){
+
   const data = await d3.csv(
-  '../us.csv');
+  '../july.csv');
   console.log(data)
   console.log(data.length)
   data.forEach(function(d,i) {
-    console.log(d.date)
+   
     dates1[i] = d.date
-    domain1[i] = d.domain
-    cases1[i] = d.cases
+    // domain1[i] = d.domain
+    cases1[i] = parseInt(d.cases)
   });
-//   const data = await d3.csv('../us.csv').then(function(data){
-    
-//   console.log(data.columns);
-//   console.log(data)
-//   console.log(data.length)
-//   console.log(data[0].date)
-//   data.forEach(function(d,i) {
-//     console.log(d.date)
-//     domain1[i] = d.domain
-//   });
-//   console.log(domain1)
-// });
+
+console.log(cases1)
+console.log("here")
+var maxCases = cases1.reduce(function(a,b){return Math.max(a,b);})
+
+console.log(cases1.reduce(function(a,b){return Math.max(a,b);}))
 
 var x1 = d3.scaleBand()
-  // .attr('domain', function(d) { return d.domain; })
 	.domain(dates1) //neeeded to add here to get extra bar, make extra column in csv file
     .range([0,width]);
     
 var y1 = d3.scaleLinear()
-	.domain([0,1])   //should scale to max of numbers
+	.domain([0,maxCases])   //should scale to max of numbers
     .range([height,0]);
 
 var chart = d3.select(".chart");
 
 
 chart.attr("width",width + 2*margin)
-    .attr("height",height + 2*margin)
+    .attr("height",height + 2*margin + 24)
     .append("g")
         .attr("transform","translate(" + margin + "," + margin + ")")
     .selectAll("rect")
 	.data(data)
     .enter().append("rect")
     .attr("width", width/(data.length))
-    .attr("height",function(d) { return height - y1(d); })
-    .attr("x",function(d,i) { return x1(i); })
-    .attr("y",function(d) { return y1(d); });
-
+    .attr("height",function(d) {
+      console.log("aaaaaaaaa")
+      console.log(parseInt(d.cases))
+      console.log(height)
+      console.log(y1((d.cases)))
+      return height - y1(parseInt(d.cases));
+    })// { return height - y1(d); })
+    .attr("x",function(d,i) { return x1(d.date); })
+    .attr("y",function(d) { return y1(parseInt(d.cases)); });//{ return y1(d.cases); });
+    console.log(height)
 chart.append("g")
     .attr("transform", "translate(" + margin + "," + margin + ")")
     .call(d3.axisLeft(y1));
 
 chart.append("g")
     .attr("transform", "translate(" + margin + "," + (height+margin) + ")")
-    .call(d3.axisBottom(x1));
+  
+    .call(d3.axisBottom(x1))
+    .selectAll("text")
+      .attr("y", 0)
+      .attr("x", 9)
+      .attr("dy", ".35em")
+      .attr("transform", "rotate(90)")
+      .style("text-anchor", "start");
+
 }
 
 ///////////////
@@ -196,7 +195,7 @@ async function chart1() {
 
 
   const data = await d3.csv(
-    '../us.csv');
+    '../july.csv');
   console.log(data)
   console.log(function(d,i){return x(d.cases);})
 
