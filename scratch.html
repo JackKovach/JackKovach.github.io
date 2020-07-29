@@ -49,3 +49,56 @@ chart.append("g")
 </script>
 
 </body></html>
+
+// async function chart1() {
+    //   d3.select("svg").selectAll("*").remove()//.html = ""
+    //   d3.select(".chart").selectAll("*").remove()//.html = ""
+    //   var x = d3.scaleLog().domain([10,250]).range([0,400]);
+    //   var y = d3.scaleLog().domain([10,250]).range([400,0]);
+    //   var margin = 30;
+    //   var width = 540;
+    //   var height = 390;
+    
+    
+    //   const data = await d3.csv(
+    //     '../july.csv');
+    //   console.log(data)
+    //   console.log(function(d,i){return x(d.cases);})
+    
+    //   d3.select("svg")
+    //     .attr("width", 600)
+    //     .attr("height",450)
+    //     .append("g")
+    //     .attr("transform","translate(" + margin + "," + margin + ")")
+    //     .selectAll('circle')
+    //     .data(data)
+    //     .enter()
+    //     .append('circle')
+    //       .attr("cx", function(d,i){return x(d.cases)})
+    //       .attr("cy", function(d,i){return y(d.cases)})
+    //       .attr("r", function(d,i){return (2 + parseInt(1))})
+    //       .on("mouseover", function(d,i) {
+    //         tooltip.style("opacity", 1)
+    //                .style("left",(d3.event.pageX)+"px")
+    //                .style("top",(d3.event.pageY)+"px")
+    //                .html("Item #"+d.date+" is "+d.deaths);
+    //       })
+    //       .on("mouseout", function() { tooltip.style("opacity", 0) })
+    //     ;
+    
+    //   d3.select("svg").append("g")
+    //       .attr("transform","translate(" + margin + "," + margin + ")")  // 50 0 
+    //       .attr("fill","none")
+    //       .call(d3.axisLeft(y)
+    //          .tickValues([10,20,50,100])
+    //          .tickFormat(d3.format("~s"))
+    //          );
+    
+    //   d3.select("svg").append("g")
+    //       .attr("transform","translate(" + margin + "," + (height+margin) + ")") //50 450
+    //       .attr("fill","none")
+    //       .call(d3.axisBottom(x)
+    //            .tickValues([10,20,50,100])
+    //            .tickFormat(d3.format("~s"))
+    //            );
+    // }
