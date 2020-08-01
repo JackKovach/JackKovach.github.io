@@ -81,29 +81,23 @@ p.descript {
 <!-- <svg class="chart"></svg> -->
 
 <div class="btn-group">
-    <button class="button1" onclick="chart1()">Chart1</button>
+    <button class="button1" onclick="previous()">Chart1</button>
     <button class="button2" onclick="bringBack()">Chart2</button>
-    <button class="button button3" onclick="bar()">Chart3</button>
+    <button class="button3" onclick="next()">Chart3</button>
 </div>
 
 
 <script>
+var month = 0
+var fileNames = ['../feb.csv', '../march.csv', '../april.csv', '../may.csv', '../june.csv', '../july.csv']
+var monthnames =['February','March','April','May','June','July']
+
 var tooltip = d3.select("#tooltip");
 
 var changeColor = function(color, y){
   y.style("fill", color)
 }
 
-// A function that update the color circle
-var changeScene = function(){
-  d3.select("svg").selectAll("*").remove()//.html = ""
-    .append("rect")
-    .attr("width", 20)
-    .attr("height", 20)
-    .attr("x", 150)
-    .attr("y", 150)
-  tooltip.style("opacity", 0);
-}
 
 var bringBack = function(){
   d3.select("svg").selectAll("*").remove()
@@ -117,11 +111,15 @@ var bringBack = function(){
   chart2()
 }
 
-////////////
+var g_chart = d3.select(".chart");
 
-async function bar(){
-
+async function next(){
 d3.select("svg").selectAll("*").remove()
+// d3.select("svg").selectAll("html").remove()
+// d3.select("svg").selectAll("g").selectAll("text").remove()
+// d3.select("svg").selectAll("g").selectAll(".tick").remove()
+// d3.select("svg").selectAll("g").selectAll(".axis").remove()
+tooltip.style("opacity", 0);
 
 var margin = 60;
 var width = 540;
@@ -130,22 +128,22 @@ var height = 390;
 var cases1 = []
 var dates1 = []
 
+if(month != 5){
+  month = month + 1
+}
+
   const data = await d3.csv(
-  '../may.csv');
+  fileNames[month]);
   console.log(data)
   console.log(data.length)
   data.forEach(function(d,i) {
    
     dates1[i] = d.date
-    // domain1[i] = d.domain
     cases1[i] = parseInt(d.cases)
   });
 
-console.log(cases1)
-console.log("here")
-var maxCases = cases1.reduce(function(a,b){return Math.max(a,b);})
 
-console.log(cases1.reduce(function(a,b){return Math.max(a,b);}))
+var maxCases = cases1.reduce(function(a,b){return Math.max(a,b);})
 
 var x1 = d3.scaleBand()
 	.domain(dates1) //neeeded to add here to get extra bar, make extra column in csv file
@@ -209,13 +207,108 @@ chart.append("g")
       .attr("transform", "rotate(90)")
       .style("text-anchor", "start");
 
+
 }
 
-///////////////
+async function previous(){
+  // d3.select("svg").selectAll("html").remove()
+  // d3.select("svg").selectAll("g").selectAll("text").remove()
+  // d3.select("svg").selectAll("g").selectAll(".tick").remove()
+  tooltip.style("opacity", 0);
+
+  var margin = 60;
+  var width = 540;
+  var height = 390;
+
+  var cases1 = []
+  var dates1 = []
+
+  if(month != 0){
+    month = month - 1
+  }
+
+    const data = await d3.csv(
+    fileNames[month]);
+    console.log(data)
+    console.log(data.length)
+    data.forEach(function(d,i) {
+    
+      dates1[i] = d.date
+      cases1[i] = parseInt(d.cases)
+    });
+
+
+  var maxCases = cases1.reduce(function(a,b){return Math.max(a,b);})
+
+  var x1 = d3.scaleBand()
+    .domain(dates1) //neeeded to add here to get extra bar, make extra column in csv file
+      .range([0,width]);
+      
+  // var y1 = d3.scaleLinear()
+  // 	.domain([0,maxCases])   //should scale to max of numbers
+  //     .range([height,0]);
+
+  var y1 = d3.scaleLog()
+    .domain([10,5000000])
+    .range([height, 0])
+    
+  var chart = d3.select(".chart");
+  document.getElementById("descript").innerHTML = "                                       Cases";
+
+  chart.attr("width",width + 2*margin)
+      .attr("height",height + 2*margin + 24)
+      .append("g")
+          .attr("transform","translate(" + margin + "," + margin + ")")
+      .selectAll("rect")
+    .data(data)
+      .enter().append("rect")
+      .attr("width", width/(data.length))
+      .attr("height",function(d) {
+        console.log("aaaaaaaaa")
+        console.log(parseInt(d.cases))
+        console.log(data.length)
+        console.log(y1((d.cases)))
+        return height - y1(parseInt(d.cases));
+      })// { return height - y1(d); })
+      .attr("x",function(d,i) { return x1(d.date); })
+      .attr("y",function(d) { return y1(parseInt(d.cases)); })//{ return y1(d.cases); });
+      .on("click", function(d,i) {
+          d3.selectAll("rect").style("fill", "steelblue")
+          d3.select(this).style("fill", "red")
+          tooltip.style("opacity", 1)
+                .style("width", 128)
+                .style("height", 56)
+                .style("left",(d3.event.pageX)+"px")
+                .style("top",(d3.event.pageY)+"px")
+                .html("Date: "+d.date+"\n Cases: "+d.cases+"\nDeaths: "+d.deaths)});
+                //.html("Date:"+d.date+"/n Cases:"+d.cases"/nDeaths:"+d.deaths)});
+
+  console.log(height)
+  chart.append("g")
+      .attr("transform", "translate(" + margin + "," + margin + ")")
+      .call(d3.axisLeft(y1)
+      .tickValues([10,100,1000,10000,100000,1000000,5000000])
+      .tickFormat(d3.format("~s"))
+      );
+
+  chart.append("g")
+      .attr("transform", "translate(" + margin + "," + (height+margin) + ")")
+    
+      .call(d3.axisBottom(x1))
+      .selectAll("text")
+        .attr("y", 0)
+        .attr("x", 9)
+        .attr("dy", ".35em")
+        .attr("transform", "rotate(90)")
+        .style("text-anchor", "start");
+}
+
+
 
 async function chart1(){
 
 d3.select("svg").selectAll("*").remove()
+tooltip.style("opacity", 0);
 
 var margin = 60;
 var width = 540;
