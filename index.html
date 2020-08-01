@@ -114,11 +114,12 @@ var bringBack = function(){
 var g_chart = d3.select(".chart");
 
 async function next(){
-d3.select("svg").selectAll("*").remove()
-// d3.select("svg").selectAll("html").remove()
-// d3.select("svg").selectAll("g").selectAll("text").remove()
-// d3.select("svg").selectAll("g").selectAll(".tick").remove()
-// d3.select("svg").selectAll("g").selectAll(".axis").remove()
+// d3.select("svg").selectAll("*").remove()
+d3.select("svg").selectAll("html").remove()
+d3.select("svg").selectAll("g").selectAll("text").remove()
+d3.select("svg").selectAll("g").selectAll(".tick").remove()
+d3.select("svg").selectAll("g").selectAll(".axis").remove()
+
 tooltip.style("opacity", 0);
 
 var margin = 60;
@@ -132,22 +133,20 @@ if(month != 5){
   month = month + 1
 }
 
-  const data = await d3.csv(
+  var data = await d3.csv(
   fileNames[month]);
-  console.log(data)
-  console.log(data.length)
   data.forEach(function(d,i) {
-   
     dates1[i] = d.date
     cases1[i] = parseInt(d.cases)
   });
-
-
-var maxCases = cases1.reduce(function(a,b){return Math.max(a,b);})
+  
+// var maxDate = dates1.reduce(function(a,b){return Math.max(a,b);})
+var dateLength = dates1.length
+console.log(dateLength)
 
 var x1 = d3.scaleBand()
 	.domain(dates1) //neeeded to add here to get extra bar, make extra column in csv file
-    .range([0,width]);
+  .range([0,width]);
     
 // var y1 = d3.scaleLinear()
 // 	.domain([0,maxCases])   //should scale to max of numbers
@@ -157,26 +156,58 @@ var y1 = d3.scaleLog()
   .domain([10,5000000])
   .range([height, 0])
   
-var chart = d3.select(".chart");
-document.getElementById("descript").innerHTML = "                                       Cases";
 
-chart.attr("width",width + 2*margin)
-    .attr("height",height + 2*margin + 24)
-    .append("g")
-        .attr("transform","translate(" + margin + "," + margin + ")")
+document.getElementById("descript").innerHTML = "                                       Cases";
+console.log("here")
+console.log(cases1)
+
+
+
+// if (month == 0 || month == 2 || month == 4){
+//   // var lastDate = dates1[30]
+//   d3.select("rect").remove()
+//     // .attr("x", lastDate)
+//     // .attr("y",function() { return y1(parseInt(cases1[30])); })//{ return y1(d.cases); });
+//     // .attr("height",function() {
+//     //   return height - y1(parseInt(cases1[30]));
+//     // })
+// }
+
+const lastPath = d3.select('svg>path:last-child').node();
+console.log(lastPath)
+console.log(month)
+
+
+// console.log(dates1)
+// if (month == 1 || month == 3 || month == 5){
+//   // var lastDate = dates1[30]
+//   // console.log(lastDate)
+//   d3.selectAll("rect")
+//     .append("rect")
+//     // .attr("x", lastDate)
+//     // .attr("y",function() { return y1(parseInt(cases1[30])); })//{ return y1(d.cases); });
+//     // .attr("height",function() {
+//     //   return height - y1(parseInt(cases1[30]));
+//     // })
+// }
+
+
+g_chart//.attr("width",width + 2*margin)
+    // .attr("height",height + 2*margin + 24)
+    // .append("g")
+    //     .attr("transform","translate(" + margin + "," + margin + ")")
+    // .append("rect")
+    // .append("rect")
     .selectAll("rect")
-	.data(data)
-    .enter().append("rect")
+    .data(data)
+    .enter()
+    .append("rect")
     .attr("width", width/(data.length))
-    .attr("height",function(d) {
-      console.log("aaaaaaaaa")
-      console.log(parseInt(d.cases))
-      console.log(data.length)
-      console.log(y1((d.cases)))
-      return height - y1(parseInt(d.cases));
-    })// { return height - y1(d); })
     .attr("x",function(d,i) { return x1(d.date); })
     .attr("y",function(d) { return y1(parseInt(d.cases)); })//{ return y1(d.cases); });
+    .attr("height",function(d) {
+      return height - y1(parseInt(d.cases));
+    })
     .on("click", function(d,i) {
         d3.selectAll("rect").style("fill", "steelblue")
         d3.select(this).style("fill", "red")
@@ -187,18 +218,90 @@ chart.attr("width",width + 2*margin)
                .style("top",(d3.event.pageY)+"px")
                .html("Date: "+d.date+"\n Cases: "+d.cases+"\nDeaths: "+d.deaths)});
                //.html("Date:"+d.date+"/n Cases:"+d.cases"/nDeaths:"+d.deaths)});
+    
+    g_chart
+    .selectAll("rect")
+    .transition().duration(3000)
+    .attr("width", width/(data.length))
+    .attr("x",function(d,i) { return x1(d.date); })
+    .attr("y",function(d) { return y1(parseInt(d.cases)); })//{ return y1(d.cases); });
+    .attr("height",function(d) {
+      return height - y1(parseInt(d.cases));
+    })
 
-console.log(height)
-chart.append("g")
+
+
+// g_chart
+    // .selectAll("rect")
+    // .enter()
+    // .style("fill","red")
+    // .enter()
+    // .append("rect")
+    //   .attr("width", width/(data.length))
+    //   .attr("height", 285)
+    //   .attr("x", 495)
+    //   .attr("y", 120)
+    //   .style("fill", "red")
+    // .selectAll("rect")
+    // .data(data)
+    // .enter()
+    // .append("rect")
+    // .style("fill", "red")
+    // .attr("x",function(d,i) { return x1(d.date); })
+    //   .attr("y",function(d) { return y1(parseInt(d.cases)); })//{ return y1(d.cases); });
+    //   .attr("height",function(d) {
+    //     return height - y1(parseInt(d.cases));
+    //   })
+
+
+// console.log(dates1)
+// g_chart
+//     .select("g")
+//     .append("rect")
+//     .attr("x",function(d,i) { return x1("3/30/2020"); })
+//     .attr("y",function(d) { return y1(parseInt(50000)); })//{ return y1(d.cases); });
+//     .attr("height",function(d) {
+//       return height - y1(parseInt(50000));
+//     })
+// console.log(data[30])
+//  g_chart 
+// .attr("height",height + 2*margin + 24)
+//     .append("g")
+//         .attr("transform","translate(" + margin + "," + margin + ")")
+//     .selectAll("rect")
+// 	.data(data)
+//     .enter().append("rect")
+//     .on("click", function(d,i) {
+//         d3.selectAll("rect").style("fill", "grey")
+//         d3.select(this).style("fill", "red")
+//         tooltip.style("opacity", 1)
+//                .style("width", 128)
+//                .style("height", 56)
+//                .style("left",(d3.event.pageX)+"px")
+//                .style("top",(d3.event.pageY)+"px")
+//                .html("Date: "+d.date+"\n Cases: "+d.cases+"\nDeaths: "+d.deaths)})
+//                .style("fill", "grey")
+//     .attr("width", width/(data.length))
+//     .attr("height",function(d) {
+//       if (height - y1(parseInt(d.cases)) >= 0){
+//         return height - y1(parseInt(d.cases));
+//       } else {return 0}
+//     })// { return height - y1(d); })
+//     .attr("x",function(d,i) { return x1(d.date); })
+//     .attr("y",function(d) { return y1(parseInt(d.cases)); })//{ return y1(d.cases); });
+
+
+g_chart.append("g")
     .attr("transform", "translate(" + margin + "," + margin + ")")
     .call(d3.axisLeft(y1)
     .tickValues([10,100,1000,10000,100000,1000000,5000000])
     .tickFormat(d3.format("~s"))
     );
 
-chart.append("g")
+g_chart.append("g")
+    
     .attr("transform", "translate(" + margin + "," + (height+margin) + ")")
-  
+    .transition().duration(3000)
     .call(d3.axisBottom(x1))
     .selectAll("text")
       .attr("y", 0)
@@ -264,10 +367,6 @@ async function previous(){
       .enter().append("rect")
       .attr("width", width/(data.length))
       .attr("height",function(d) {
-        console.log("aaaaaaaaa")
-        console.log(parseInt(d.cases))
-        console.log(data.length)
-        console.log(y1((d.cases)))
         return height - y1(parseInt(d.cases));
       })// { return height - y1(d); })
       .attr("x",function(d,i) { return x1(d.date); })
@@ -318,7 +417,7 @@ var cases1 = []
 var dates1 = []
 
   const data = await d3.csv(
-  '../april.csv');
+  '../feb.csv');
   console.log(data)
   console.log(data.length)
   data.forEach(function(d,i) {
@@ -346,10 +445,11 @@ var y1 = d3.scaleLog()
   .domain([10,5000000])
   .range([height, 0])
   
-var chart = d3.select(".chart");
-document.getElementById("descript").innerHTML = "                                       Deaths";
+// var chart = d3.select(".chart");
+document.getElementById("descript").innerHTML = "                                       Cases";
+// document.getElementById("descript").innerHTML = "                                       Deaths";
 
-chart.attr("width",width + 2*margin)
+g_chart.attr("width",width + 2*margin)
     .attr("height",height + 2*margin + 24)
     .append("g")
         .attr("transform","translate(" + margin + "," + margin + ")")
@@ -359,14 +459,12 @@ chart.attr("width",width + 2*margin)
     .style("fill", "grey")
     .attr("width", width/(data.length))
     .attr("height",function(d) {
-      console.log("aaaaaaaaa")
-      console.log(parseInt(d.cases))
-      console.log(data.length)
-      console.log(y1((d.cases)))
-      return height - y1(parseInt(d.deaths));
+      if (height - y1(parseInt(d.cases)) >= 0){
+        return height - y1(parseInt(d.cases));
+      } else {return 0}
     })// { return height - y1(d); })
     .attr("x",function(d,i) { return x1(d.date); })
-    .attr("y",function(d) { return y1(parseInt(d.deaths)); })//{ return y1(d.cases); });
+    .attr("y",function(d) { return y1(parseInt(d.cases)); })//{ return y1(d.cases); });
     .on("click", function(d,i) {
         d3.selectAll("rect").style("fill", "grey")
         d3.select(this).style("fill", "red")
@@ -379,14 +477,14 @@ chart.attr("width",width + 2*margin)
                //.html("Date:"+d.date+"/n Cases:"+d.cases"/nDeaths:"+d.deaths)});
 
 console.log(height)
-chart.append("g")
+g_chart.append("g")
     .attr("transform", "translate(" + margin + "," + margin + ")")
     .call(d3.axisLeft(y1)
     .tickValues([10,100,1000,10000,100000,1000000,5000000])
     .tickFormat(d3.format("~s"))
     );
 
-chart.append("g")
+g_chart.append("g")
     .attr("transform", "translate(" + margin + "," + (height+margin) + ")")
   
     .call(d3.axisBottom(x1))
@@ -396,6 +494,7 @@ chart.append("g")
       .attr("dy", ".35em")
       .attr("transform", "rotate(90)")
       .style("text-anchor", "start");
+
 
 }
 
@@ -452,11 +551,9 @@ chart.attr("width",width + 2*margin)
     .enter().append("rect")
     .attr("width", width/(data.length))
     .attr("height",function(d) {
-      console.log("aaaaaaaaa")
-      console.log(parseInt(d.cases))
-      console.log(data.length)
-      console.log(y1((d.cases)))
-      return height - y1(parseInt(d.cases));
+      if (height - y1(parseInt(d.cases)) >= 0){
+        return height - y1(parseInt(d.cases));
+      } else {return 0}
     })// { return height - y1(d); })
     .attr("x",function(d,i) { return x1(d.date); })
     .attr("y",function(d) { return y1(parseInt(d.cases)); })//{ return y1(d.cases); });
