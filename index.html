@@ -56,6 +56,16 @@ p.descript {
   margin-top: -10;
 }
 
+p.annotation {
+  font: 12px Arial, sans-serif;
+  padding: 0px 0px 0px 0px;
+  margin: 25px;
+  white-space: pre;
+  margin-bottom: 10;
+  margin-top: -20;
+  margin-left: 200;
+}
+
 #tooltip {
     opacity: 0;
     position: absolute;
@@ -78,6 +88,7 @@ p.descript {
 <!-- <span id="data"></span> -->
 <body onload='chart1()'>
 <svg class="chart" width=600 height=450></svg>
+<p class="annotation" id="annotations">           First Recorded US Death - 2/29/2020</p>
 <!-- <svg class="chart"></svg> -->
 
 <div class="btn-group">
@@ -86,11 +97,16 @@ p.descript {
     <button class="button3" onclick="next()">Next Month</button>
 </div>
 
+<p id="notifier">Click On Individual Bar for Details</p>
+
+
+
 
 <script>
 var month = 0
 var fileNames = ['../feb.csv', '../march.csv', '../april.csv', '../may.csv', '../june.csv', '../july.csv']
-var monthnames =['February','March','April','May','June','July']
+var monthnames = ['February','March','April','May','June','July']
+var annotations = ["           First Recorded US Death - 2/29/2020", "    First Social Distancing Measures - 3/15/2020", "  US suprasses Italy for most deaths - 4/11/2020", "Total cases worldwide passes 5 million - 5/20/2020", "  Lockdown Restrictions Rolling Back - 6/11/2020", "US notified UN of withrdawal from WHO - 7/7/2020" ]
 
 var tooltip = d3.select("#tooltip");
 
@@ -101,6 +117,10 @@ var changeColor = function(color, y){
 var g_chart = d3.select(".chart");
 
 var displayCase = 1  //variable to keep track of cases vs deaths
+
+document.getElementById("notifier").style.textIndent = "215px";
+document.getElementById("notifier").style.marginTop = "10";
+document.getElementById("annotations").style.whiteSpace = "pre";
 
 async function next(){
   d3.select("svg").selectAll("html").remove()
@@ -146,19 +166,13 @@ var dates1 = []
 
   const data = await d3.csv(
   '../feb.csv');
-  console.log(data)
-  console.log(data.length)
   data.forEach(function(d,i) {
    
     dates1[i] = d.date
     cases1[i] = parseInt(d.cases)
   });
 
-console.log(cases1)
-console.log("here")
 var maxCases = cases1.reduce(function(a,b){return Math.max(a,b);})
-
-console.log(cases1.reduce(function(a,b){return Math.max(a,b);}))
 
 var x1 = d3.scaleBand()
 	.domain(dates1) //needed to add here to get extra bar, make extra column in csv file
@@ -197,7 +211,6 @@ g_chart.attr("width",width + 2*margin)
                .html("Date: "+d.date+"\n Cases: "+d.cases+"\nDeaths: "+d.deaths)});
                //.html("Date:"+d.date+"/n Cases:"+d.cases"/nDeaths:"+d.deaths)});
 
-console.log(height)
 g_chart.append("g")
     .attr("transform", "translate(" + margin + "," + margin + ")")
     .call(d3.axisLeft(y1)
@@ -259,8 +272,7 @@ async function main(){
     .domain([10,5000000])
     .range([height, 0])
 
-    console.log(displayCase)
-
+    document.getElementById("annotations").innerHTML = annotations[month];
     if (displayCase == 1){
     document.getElementById("descript").innerHTML = "                              " + monthnames[month] + " Total Cases";
 
@@ -301,6 +313,16 @@ async function main(){
         
         g_chart
         .selectAll("rect")
+        .style("fill", "steelblue")
+        .on("click", function(d,i) {
+            d3.selectAll("rect").style("fill", "steelblue")
+            d3.select(this).style("fill", "red")
+            tooltip.style("opacity", 1)
+                  .style("width", 128)
+                  .style("height", 56)
+                  .style("left",(d3.event.pageX)+"px")
+                  .style("top",(d3.event.pageY)+"px")
+                  .html("Date: "+d.date+"\n Cases: "+d.cases+"\nDeaths: "+d.deaths)})
         .transition().duration(3000)
         .attr("width", width/(data.length))
         .attr("x",function(d,i) { return x1(d.date); })
@@ -376,6 +398,15 @@ async function main(){
         g_chart
         .selectAll("rect")
         .style("fill", "grey")
+        .on("click", function(d,i) {
+            d3.selectAll("rect").style("fill", "grey")
+            d3.select(this).style("fill", "red")
+            tooltip.style("opacity", 1)
+                  .style("width", 128)
+                  .style("height", 56)
+                  .style("left",(d3.event.pageX)+"px")
+                  .style("top",(d3.event.pageY)+"px")
+                  .html("Date: "+d.date+"\n Cases: "+d.cases+"\nDeaths: "+d.deaths)})
         .transition().duration(3000)
         .attr("width", width/(data.length))
         .attr("x",function(d,i) { return x1(d.date); })
