@@ -13,10 +13,10 @@ rect {fill: lightblue; stroke: black;}
   background-color: #4CAF50; /* Green background */
   border: 1px solid green; /* Green border */
   color: white; /* White text */
-  padding: 20px 28px; /* Some padding  height, width*/
+  padding: 10px 20px; /* Some padding  height, width*/
   cursor: pointer; /* Pointer/hand icon */
   float: left; /* Float the buttons side by side */
-  font: 20px Arial, sans-serif;
+  font: 18px Arial, sans-serif;
   
 }
 
@@ -37,24 +37,25 @@ rect {fill: lightblue; stroke: black;}
 }
 
 .btn-group {
-  margin-left: 70px;
+  margin-left: 40px;
 }
 
 p.a {
-  font: 48px Arial, sans-serif;
-  padding: 0px 0px 0px 0px;
-  margin: 25px;
-  white-space: pre;
-}
-
-p.descript {
   font: 24px Arial, sans-serif;
   padding: 0px 0px 0px 0px;
   margin: 25px;
   white-space: pre;
+  margin-left: 165;
+}
+
+p.descript {
+  font: 18px Arial, sans-serif;
+  padding: 0px 0px 0px 0px;
+  margin: 25px;
+  white-space: pre;
   margin-bottom: 0;
-  margin-top: -10;
-  margin-left: 220
+  margin-top: -15;
+  margin-left: 235
 }
 
 p.annotation {
@@ -84,7 +85,7 @@ p.annotation {
 </style>
 
 <div id="tooltip"></div>
-<p class="a">        US COVID-19 Data</p>
+<p class="a" id="title">US COVID-19 Data - Log View</p>
 <p class="descript" id="descript">                                      Cases</p>
 <!-- <span id="data"></span> -->
 <body onload='chart1()'>
@@ -95,7 +96,8 @@ p.annotation {
 <div class="btn-group">
     <button class="button1" onclick="previous()">Previous Month</button>
     <button class="button2" id="button2" onclick="caseDeath()">View Deaths</button>
-    <button class="button3" onclick="next()">Next Month</button>
+    <button class="button3" id="button3" onclick="scaleSwitch()">View Linear</button>
+    <button class="button4" onclick="next()">Next Month</button>
 </div>
 
 <p id="notifier">Click On Individual Bar for Details</p>
@@ -118,6 +120,7 @@ var changeColor = function(color, y){
 var g_chart = d3.select(".chart");
 
 var displayCase = 1  //variable to keep track of cases vs deaths
+var displayLog = 1 
 
 document.getElementById("notifier").style.textIndent = "215px";
 document.getElementById("notifier").style.marginTop = "10";
@@ -161,7 +164,7 @@ tooltip.style("opacity", 0);
 
 var margin = 60;
 var width = 540;
-var height = 390;
+var height = 450;
 
 var cases1 = []
 var dates1 = []
@@ -243,6 +246,19 @@ async function caseDeath(){
   main()
 }
 
+async function scaleSwitch(){
+  if (displayLog == 1){
+      displayLog = 0
+      document.getElementById("button3").innerHTML = "View Log";
+      document.getElementById("title").innerHTML = "US COVID-19 Data - Linear View";
+    } else {
+      displayLog = 1
+      document.getElementById("button3").innerHTML = "View Linear";
+      document.getElementById("title").innerHTML = "US COVID-19 Data - Log View";
+    }
+  main()
+}
+
 
 async function main(){
   d3.select("svg").selectAll("html").remove()
@@ -254,7 +270,7 @@ async function main(){
 
   var margin = 60;
   var width = 540;
-  var height = 390;
+  var height = 450;
 
   var cases1 = []
   var dates1 = []
@@ -265,7 +281,7 @@ async function main(){
       dates1[i] = d.date
       cases1[i] = parseInt(d.cases)
     });
-    
+  
   var x1 = d3.scaleBand()
     .domain(dates1) 
     .range([0,width]);
@@ -273,6 +289,18 @@ async function main(){
   var y1 = d3.scaleLog()
     .domain([10,5000000])
     .range([height, 0])
+
+  if (displayLog == 0 && displayCase == 1){
+    y1 = d3.scaleLinear()
+      .domain([1000,5000000])
+      .range([height, 0])
+  }
+
+  if (displayLog == 0 && displayCase == 0){
+    y1 = d3.scaleLinear()
+      .domain([10,200000])
+      .range([height, 0])
+  }
 
     document.getElementById("annotations").innerHTML = annotations[month];
     if (displayCase == 1){
@@ -341,13 +369,21 @@ async function main(){
               return height - y1(parseInt(d.cases));
             } else {return 0}
           })
-          
-      g_chart.append("g")
-          .attr("transform", "translate(" + margin + "," + margin + ")")
-          .call(d3.axisLeft(y1)
-          .tickValues([10,100,1000,10000,100000,1000000,5000000])
-          .tickFormat(d3.format("~s"))
-          );
+      if (displayLog == 1){
+        g_chart.append("g")
+            .attr("transform", "translate(" + margin + "," + margin + ")")
+            .call(d3.axisLeft(y1)
+            .tickValues([10,100,1000,10000,100000,1000000,5000000])
+            .tickFormat(d3.format("~s"))
+            );
+      } else {
+        g_chart.append("g")
+            .attr("transform", "translate(" + margin + "," + margin + ")")
+            .call(d3.axisLeft(y1)
+            .tickValues([1000,500000,1000000, 2000000, 3000000, 4000000,5000000])
+            .tickFormat(d3.format("~s"))
+            );
+      }
 
       g_chart.append("g")
           
@@ -426,14 +462,22 @@ async function main(){
               return height - y1(parseInt(d.deaths));
             } else {return 0}
           })
-          
-          
-      g_chart.append("g")
-          .attr("transform", "translate(" + margin + "," + margin + ")")
-          .call(d3.axisLeft(y1)
-          .tickValues([10,100,1000,10000,100000,1000000,5000000])
-          .tickFormat(d3.format("~s"))
-          );
+
+      if (displayLog == 1){
+        g_chart.append("g")
+            .attr("transform", "translate(" + margin + "," + margin + ")")
+            .call(d3.axisLeft(y1)
+            .tickValues([10,100,1000,10000,100000,1000000,5000000])
+            .tickFormat(d3.format("~s"))
+            );
+      } else {
+        g_chart.append("g")
+            .attr("transform", "translate(" + margin + "," + margin + ")")
+            .call(d3.axisLeft(y1)
+            .tickValues([10, 10000, 50000, 100000, 150000,200000])
+            .tickFormat(d3.format("~s"))
+            );
+      }
 
       g_chart.append("g")
           .attr("transform", "translate(" + margin + "," + (height+margin) + ")")
