@@ -37,7 +37,7 @@ rect {fill: lightblue; stroke: black;}
 }
 
 .btn-group {
-  margin-left:58px;
+  margin-left: 70px;
 }
 
 p.a {
@@ -94,7 +94,7 @@ p.annotation {
 
 <div class="btn-group">
     <button class="button1" onclick="previous()">Previous Month</button>
-    <button class="button2" onclick="caseDeath()">Cases/Deaths</button>
+    <button class="button2" id="button2" onclick="caseDeath()">View Deaths</button>
     <button class="button3" onclick="next()">Next Month</button>
 </div>
 
@@ -122,6 +122,7 @@ var displayCase = 1  //variable to keep track of cases vs deaths
 document.getElementById("notifier").style.textIndent = "215px";
 document.getElementById("notifier").style.marginTop = "10";
 document.getElementById("annotations").style.whiteSpace = "pre";
+document.getElementById("button2").innerHTML = "View Deaths";
 
 async function next(){
   d3.select("svg").selectAll("html").remove()
@@ -275,173 +276,175 @@ async function main(){
 
     document.getElementById("annotations").innerHTML = annotations[month];
     if (displayCase == 1){
-    document.getElementById("descript").innerHTML = monthnames[month] + " Total Cases";
+      document.getElementById("button2").innerHTML = "View Deaths";
+      document.getElementById("descript").innerHTML = monthnames[month] + " Total Cases";
 
-    const lastPath = d3.select('svg>path:last-child').node();
+      const lastPath = d3.select('svg>path:last-child').node();
 
-    g_chart
-        .select("g")
-        .selectAll("rect")
-        .style("fill", "steelblue")
-        .data(data)
-        .enter()
-        .append("rect")
-        .attr("x", width)
-        .attr("y",function(d) { return y1(parseInt(d.cases)); })
-        .attr("width", width/(data.length))
-        .attr("height",function(d) {
-          if (height - y1(parseInt(d.cases)) >= 0){
-            return height - y1(parseInt(d.cases));
-          } else {return 0}
-        })
-        .on("click", function(d,i) {
-            d3.selectAll("rect").style("fill", "steelblue")
-            d3.select(this).style("fill", "red")
-            tooltip.style("opacity", 1)
-                  .style("width", 128)
-                  .style("height", 56)
-                  .style("left",(d3.event.pageX)+"px")
-                  .style("top",(d3.event.pageY)+"px")
-                  .html("Date: "+d.date+"\n Cases: "+d.cases+"\nDeaths: "+d.deaths)})
-      
-      g_chart 
+      g_chart
           .select("g")
           .selectAll("rect")
+          .style("fill", "steelblue")
           .data(data)
-          .exit()
-          .remove();
-
-        
-        g_chart
-        .selectAll("rect")
-        .style("fill", "steelblue")
-        .on("click", function(d,i) {
-            d3.selectAll("rect").style("fill", "steelblue")
-            d3.select(this).style("fill", "red")
-            tooltip.style("opacity", 1)
-                  .style("width", 128)
-                  .style("height", 56)
-                  .style("left",(d3.event.pageX)+"px")
-                  .style("top",(d3.event.pageY)+"px")
-                  .html("Date: "+d.date+"\n Cases: "+d.cases+"\nDeaths: "+d.deaths)})
-        .transition().duration(3000)
-        .attr("width", width/(data.length))
-        .attr("x",function(d,i) { return x1(d.date); })
-        .attr("y",function(d) { 
-            if (d.cases >= 10){
-              return y1(parseInt(d.cases));
-            } else {
-              return height;
-            }
+          .enter()
+          .append("rect")
+          .attr("x", width)
+          .attr("y",function(d) { return y1(parseInt(d.cases)); })
+          .attr("width", width/(data.length))
+          .attr("height",function(d) {
+            if (height - y1(parseInt(d.cases)) >= 0){
+              return height - y1(parseInt(d.cases));
+            } else {return 0}
           })
-        .attr("height",function(d) {
-          if (height - y1(parseInt(d.cases)) >= 0){
-            return height - y1(parseInt(d.cases));
-          } else {return 0}
-        })
+          .on("click", function(d,i) {
+              d3.selectAll("rect").style("fill", "steelblue")
+              d3.select(this).style("fill", "red")
+              tooltip.style("opacity", 1)
+                    .style("width", 128)
+                    .style("height", 56)
+                    .style("left",(d3.event.pageX)+"px")
+                    .style("top",(d3.event.pageY)+"px")
+                    .html("Date: "+d.date+"\n Cases: "+d.cases+"\nDeaths: "+d.deaths)})
         
-    g_chart.append("g")
-        .attr("transform", "translate(" + margin + "," + margin + ")")
-        .call(d3.axisLeft(y1)
-        .tickValues([10,100,1000,10000,100000,1000000,5000000])
-        .tickFormat(d3.format("~s"))
-        );
+        g_chart 
+            .select("g")
+            .selectAll("rect")
+            .data(data)
+            .exit()
+            .remove();
 
-    g_chart.append("g")
-        
-        .attr("transform", "translate(" + margin + "," + (height+margin) + ")")
-        .transition().duration(3000)
-        .call(d3.axisBottom(x1))
-        .selectAll("text")
-          .attr("y", 0)
-          .attr("x", 9)
-          .attr("dy", ".35em")
-          .attr("transform", "rotate(90)")
-          .style("text-anchor", "start");
+          
+          g_chart
+          .selectAll("rect")
+          .style("fill", "steelblue")
+          .on("click", function(d,i) {
+              d3.selectAll("rect").style("fill", "steelblue")
+              d3.select(this).style("fill", "red")
+              tooltip.style("opacity", 1)
+                    .style("width", 128)
+                    .style("height", 56)
+                    .style("left",(d3.event.pageX)+"px")
+                    .style("top",(d3.event.pageY)+"px")
+                    .html("Date: "+d.date+"\n Cases: "+d.cases+"\nDeaths: "+d.deaths)})
+          .transition().duration(3000)
+          .attr("width", width/(data.length))
+          .attr("x",function(d,i) { return x1(d.date); })
+          .attr("y",function(d) { 
+              if (d.cases >= 10){
+                return y1(parseInt(d.cases));
+              } else {
+                return height;
+              }
+            })
+          .attr("height",function(d) {
+            if (height - y1(parseInt(d.cases)) >= 0){
+              return height - y1(parseInt(d.cases));
+            } else {return 0}
+          })
+          
+      g_chart.append("g")
+          .attr("transform", "translate(" + margin + "," + margin + ")")
+          .call(d3.axisLeft(y1)
+          .tickValues([10,100,1000,10000,100000,1000000,5000000])
+          .tickFormat(d3.format("~s"))
+          );
+
+      g_chart.append("g")
+          
+          .attr("transform", "translate(" + margin + "," + (height+margin) + ")")
+          .transition().duration(3000)
+          .call(d3.axisBottom(x1))
+          .selectAll("text")
+            .attr("y", 0)
+            .attr("x", 9)
+            .attr("dy", ".35em")
+            .attr("transform", "rotate(90)")
+            .style("text-anchor", "start");
     }
 
     if (displayCase == 0) {
+      document.getElementById("button2").innerHTML = "View Cases";
       document.getElementById("descript").innerHTML = monthnames[month] + " Total Deaths";
-    g_chart
-        .select("g")
-        .selectAll("rect")
-        .style("fill", "grey")
-        .data(data)
-        .enter()
-        .append("rect")
-        // .style("fill", "grey")
-        .attr("x", width)
-        .attr("y",function(d) { return y1(parseInt(d.deaths)); })
-        .attr("width", width/(data.length))
-        .attr("height",function(d) {
-          if (height - y1(parseInt(d.deaths)) >= 0){
-            return height - y1(parseInt(d.deaths));
-          } else {return 0}
-        })
-        .on("click", function(d,i) {
-            d3.selectAll("rect").style("fill", "steelblue")
-            d3.select(this).style("fill", "red")
-            tooltip.style("opacity", 1)
-                  .style("width", 128)
-                  .style("height", 56)
-                  .style("left",(d3.event.pageX)+"px")
-                  .style("top",(d3.event.pageY)+"px")
-                  .html("Date: "+d.date+"\n Cases: "+d.cases+"\nDeaths: "+d.deaths)})
-      
-      g_chart 
+      g_chart
           .select("g")
           .selectAll("rect")
+          .style("fill", "grey")
           .data(data)
-          .exit()
-          .remove();
-
-        
-        g_chart
-        .selectAll("rect")
-        .style("fill", "grey")
-        .on("click", function(d,i) {
-            d3.selectAll("rect").style("fill", "grey")
-            d3.select(this).style("fill", "red")
-            tooltip.style("opacity", 1)
-                  .style("width", 128)
-                  .style("height", 56)
-                  .style("left",(d3.event.pageX)+"px")
-                  .style("top",(d3.event.pageY)+"px")
-                  .html("Date: "+d.date+"\n Cases: "+d.cases+"\nDeaths: "+d.deaths)})
-        .transition().duration(3000)
-        .attr("width", width/(data.length))
-        .attr("x",function(d,i) { return x1(d.date); })
-        .attr("y",function(d) { 
-            if (d.deaths >= 10){
-              return y1(parseInt(d.deaths));
-            } else {
-              return height;
-            }
+          .enter()
+          .append("rect")
+          // .style("fill", "grey")
+          .attr("x", width)
+          .attr("y",function(d) { return y1(parseInt(d.deaths)); })
+          .attr("width", width/(data.length))
+          .attr("height",function(d) {
+            if (height - y1(parseInt(d.deaths)) >= 0){
+              return height - y1(parseInt(d.deaths));
+            } else {return 0}
           })
-        .attr("height",function(d) {
-          if (height - y1(parseInt(d.deaths)) >= 0){
-            return height - y1(parseInt(d.deaths));
-          } else {return 0}
-        })
+          .on("click", function(d,i) {
+              d3.selectAll("rect").style("fill", "steelblue")
+              d3.select(this).style("fill", "red")
+              tooltip.style("opacity", 1)
+                    .style("width", 128)
+                    .style("height", 56)
+                    .style("left",(d3.event.pageX)+"px")
+                    .style("top",(d3.event.pageY)+"px")
+                    .html("Date: "+d.date+"\n Cases: "+d.cases+"\nDeaths: "+d.deaths)})
         
-        
-    g_chart.append("g")
-        .attr("transform", "translate(" + margin + "," + margin + ")")
-        .call(d3.axisLeft(y1)
-        .tickValues([10,100,1000,10000,100000,1000000,5000000])
-        .tickFormat(d3.format("~s"))
-        );
+        g_chart 
+            .select("g")
+            .selectAll("rect")
+            .data(data)
+            .exit()
+            .remove();
 
-    g_chart.append("g")
-        .attr("transform", "translate(" + margin + "," + (height+margin) + ")")
-        .transition().duration(3000)
-        .call(d3.axisBottom(x1))
-        .selectAll("text")
-          .attr("y", 0)
-          .attr("x", 9)
-          .attr("dy", ".35em")
-          .attr("transform", "rotate(90)")
-          .style("text-anchor", "start");
+          
+          g_chart
+          .selectAll("rect")
+          .style("fill", "grey")
+          .on("click", function(d,i) {
+              d3.selectAll("rect").style("fill", "grey")
+              d3.select(this).style("fill", "red")
+              tooltip.style("opacity", 1)
+                    .style("width", 128)
+                    .style("height", 56)
+                    .style("left",(d3.event.pageX)+"px")
+                    .style("top",(d3.event.pageY)+"px")
+                    .html("Date: "+d.date+"\n Cases: "+d.cases+"\nDeaths: "+d.deaths)})
+          .transition().duration(3000)
+          .attr("width", width/(data.length))
+          .attr("x",function(d,i) { return x1(d.date); })
+          .attr("y",function(d) { 
+              if (d.deaths >= 10){
+                return y1(parseInt(d.deaths));
+              } else {
+                return height;
+              }
+            })
+          .attr("height",function(d) {
+            if (height - y1(parseInt(d.deaths)) >= 0){
+              return height - y1(parseInt(d.deaths));
+            } else {return 0}
+          })
+          
+          
+      g_chart.append("g")
+          .attr("transform", "translate(" + margin + "," + margin + ")")
+          .call(d3.axisLeft(y1)
+          .tickValues([10,100,1000,10000,100000,1000000,5000000])
+          .tickFormat(d3.format("~s"))
+          );
+
+      g_chart.append("g")
+          .attr("transform", "translate(" + margin + "," + (height+margin) + ")")
+          .transition().duration(3000)
+          .call(d3.axisBottom(x1))
+          .selectAll("text")
+            .attr("y", 0)
+            .attr("x", 9)
+            .attr("dy", ".35em")
+            .attr("transform", "rotate(90)")
+            .style("text-anchor", "start");
     }
 
 }
