@@ -54,6 +54,7 @@ p.descript {
   white-space: pre;
   margin-bottom: 0;
   margin-top: -10;
+  margin-left: 220
 }
 
 p.annotation {
@@ -105,7 +106,7 @@ p.annotation {
 <script>
 var month = 0
 var fileNames = ['../feb.csv', '../march.csv', '../april.csv', '../may.csv', '../june.csv', '../july.csv']
-var monthnames = ['February','March','April','May','June','July']
+var monthnames = ['February',' March','   April','   May','  June','   July']
 var annotations = ["           First Recorded US Death - 2/29/2020", "    First Social Distancing Measures - 3/15/2020", "  US suprasses Italy for most deaths - 4/11/2020", "Total cases worldwide passes 5 million - 5/20/2020", "  Lockdown Restrictions Rolling Back - 6/11/2020", "US notified UN of withrdawal from WHO - 7/7/2020" ]
 
 var tooltip = d3.select("#tooltip");
@@ -183,7 +184,7 @@ var y1 = d3.scaleLog()
   .domain([10,5000000])
   .range([height, 0])
   
-document.getElementById("descript").innerHTML = "                              " + monthnames[month] +" Total Cases";
+document.getElementById("descript").innerHTML = monthnames[month] +" Total Cases";
 
 g_chart.attr("width",width + 2*margin)
     .attr("height",height + 2*margin + 24)
@@ -274,7 +275,7 @@ async function main(){
 
     document.getElementById("annotations").innerHTML = annotations[month];
     if (displayCase == 1){
-    document.getElementById("descript").innerHTML = "                              " + monthnames[month] + " Total Cases";
+    document.getElementById("descript").innerHTML = monthnames[month] + " Total Cases";
 
     const lastPath = d3.select('svg>path:last-child').node();
 
